@@ -14,6 +14,8 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 class CreateNoteFragment : BaseFragment() {
+
+    var selectedColor = "#"
     var currentDate:String? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

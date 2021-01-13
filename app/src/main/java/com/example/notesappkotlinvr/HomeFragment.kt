@@ -5,7 +5,11 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.recyclerview.widget.StaggeredGridLayoutManager
+import com.example.notesappkotlinvr.adapter.NotesAdapter
+import com.example.notesappkotlinvr.database.NotesDatabase
 import kotlinx.android.synthetic.main.fragment_home.*
+import kotlinx.coroutines.launch
 
 class HomeFragment : BaseFragment() {
 
@@ -35,6 +39,18 @@ class HomeFragment : BaseFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        recycler_view.setHasFixedSize(true)
+
+        recycler_view.layoutManager = StaggeredGridLayoutManager(2,StaggeredGridLayoutManager.VERTICAL)
+
+        launch {
+            context?.let {
+                var notes =  NotesDatabase.getDatabase(it).noteDao().getAllNotes()
+                recycler_view.adapter = NotesAdapter(notes)
+            }
+        }
+
         fabBtnCreateNote.setOnClickListener {
             replaceFragment(CreateNoteFragment.newInstance(),true)
         }
