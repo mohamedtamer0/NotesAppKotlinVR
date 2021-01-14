@@ -8,15 +8,17 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.example.notesappkotlinvr.adapter.NotesAdapter
 import com.example.notesappkotlinvr.database.NotesDatabase
+import com.example.notesappkotlinvr.enities.Notes
 import kotlinx.android.synthetic.main.fragment_home.*
 import kotlinx.coroutines.launch
 
 class HomeFragment : BaseFragment() {
 
+    var arrNotes = ArrayList<Notes>()
+    var notesAdapter: NotesAdapter = NotesAdapter()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
-
         }
     }
 
@@ -46,8 +48,10 @@ class HomeFragment : BaseFragment() {
 
         launch {
             context?.let {
-                var notes =  NotesDatabase.getDatabase(it).noteDao().getAllNotes()
-                recycler_view.adapter = NotesAdapter(notes)
+                var notes = NotesDatabase.getDatabase(it).noteDao().getAllNotes()
+                notesAdapter!!.setData(notes)
+                arrNotes = notes as ArrayList<Notes>
+                recycler_view.adapter = notesAdapter
             }
         }
 
