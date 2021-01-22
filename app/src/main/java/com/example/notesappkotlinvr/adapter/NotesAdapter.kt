@@ -48,6 +48,15 @@ class NotesAdapter() :
         }
 
 
+        if (arrList[position].imgPath != null){
+            holder.itemView.imgNote.setImageBitmap(BitmapFactory.decodeFile(arrList[position].imgPath))
+            holder.itemView.imgNote.visibility = View.VISIBLE
+        }else{
+            holder.itemView.imgNote.visibility = View.GONE
+        }
+
+
+
     }
 
     class NotesViewHolder(view: View) : RecyclerView.ViewHolder(view) {

@@ -1,11 +1,16 @@
 package com.example.notesappkotlinvr
 
+import android.Manifest
+import android.app.Activity.RESULT_OK
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.graphics.BitmapFactory
 import android.graphics.Color
+import android.net.Uri
 import android.os.Bundle
+import android.provider.MediaStore
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -17,10 +22,13 @@ import com.example.notesappkotlinvr.enities.Notes
 import com.example.notesappkotlinvr.util.NoteBottomSheetFragment
 import kotlinx.android.synthetic.main.fragment_create_note.*
 import kotlinx.coroutines.launch
+import pub.devrel.easypermissions.AppSettingsDialog
+import pub.devrel.easypermissions.EasyPermissions
+import java.lang.Exception
 import java.text.SimpleDateFormat
 import java.util.*
 
-class CreateNoteFragment : BaseFragment() {
+class CreateNoteFragment : BaseFragment(), EasyPermissions.PermissionCallbacks, EasyPermissions.RationaleCallbacks {
     var selectedColor = "#171C26"
     var currentDate:String? = null
     private var READ_STORAGE_PERM = 123
@@ -101,11 +109,15 @@ class CreateNoteFragment : BaseFragment() {
             notes.noteText = etNoteDesc.text.toString()
             notes.dateTime = currentDate
             notes.color = selectedColor
+            notes.imgPath = selectedImagePath
             context?.let {
                 NotesDatabase.getDatabase(it).noteDao().insertNotes(notes)
                 etNoteTitle.setText("")
                 etNoteSubTitle.setText("")
                 etNoteDesc.setText("")
+                imgNote.visibility = View.GONE
+
+                requireActivity().supportFragmentManager.popBackStack()
             }
         }
 
@@ -170,6 +182,10 @@ class CreateNoteFragment : BaseFragment() {
 
                 }
 
+                "Image" -> {
+                    readStorageTask()
+                }
+
 
                 else -> {
                     layoutImage.visibility = View.GONE
@@ -190,6 +206,103 @@ class CreateNoteFragment : BaseFragment() {
         super.onDestroy()
     }
 
+
+    private fun hasReadStoragePerm() : Boolean {
+        return EasyPermissions.hasPermissions(requireContext(),Manifest.permission.READ_EXTERNAL_STORAGE)
+    }
+
+
+    private fun readStorageTask() {
+        if (hasReadStoragePerm()) {
+
+            pickImageFromGallery()
+        }else {
+            EasyPermissions.requestPermissions(
+                requireActivity(),
+                getString(R.string.storage_permission_text),
+                READ_STORAGE_PERM,
+                Manifest.permission.READ_EXTERNAL_STORAGE
+            )
+        }
+    }
+
+
+    private fun pickImageFromGallery() {
+        var intent = Intent(Intent.ACTION_PICK,MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+        if (intent.resolveActivity(requireActivity().packageManager) != null) {
+            startActivityForResult(intent,REQUEST_CODE_IMAGE)
+        }
+    }
+
+
+    private fun getPathFromUri(contentUri: Uri): String? {
+        var filePath:String? = null
+        var cursor = requireActivity().contentResolver.query(contentUri,null,null,null,null)
+        if (cursor == null){
+            filePath = contentUri.path
+        }else{
+            cursor.moveToFirst()
+            var index = cursor.getColumnIndex("_data")
+            filePath = cursor.getString(index)
+            cursor.close()
+        }
+        return filePath
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == REQUEST_CODE_IMAGE && resultCode == RESULT_OK){
+            if (data != null){
+                var selectedImageUrl = data.data
+                if (selectedImageUrl != null){
+                    try {
+                        var inputStream = requireActivity().contentResolver.openInputStream(selectedImageUrl)
+                        var bitmap = BitmapFactory.decodeStream(inputStream)
+                        imgNote.setImageBitmap(bitmap)
+                        imgNote.visibility = View.VISIBLE
+                        layoutImage.visibility = View.VISIBLE
+
+                        selectedImagePath = getPathFromUri(selectedImageUrl)!!
+                    }catch (e:Exception){
+                        Toast.makeText(requireContext(),e.message,Toast.LENGTH_SHORT).show()
+                    }
+
+                }
+            }
+        }
+    }
+
+
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+
+        EasyPermissions.onRequestPermissionsResult(requestCode,permissions,grantResults,requireActivity())
+    }
+
+
+
+    override fun onPermissionsGranted(requestCode: Int, perms: MutableList<String>) {
+        if (EasyPermissions.somePermissionPermanentlyDenied(requireActivity(),perms)) {
+            AppSettingsDialog.Builder(requireActivity()).build().show()
+        }
+    }
+
+    override fun onPermissionsDenied(requestCode: Int, perms: MutableList<String>) {
+        TODO("Not yet implemented")
+    }
+
+    override fun onRationaleAccepted(requestCode: Int) {
+        TODO("Not yet implemented")
+    }
+
+    override fun onRationaleDenied(requestCode: Int) {
+        TODO("Not yet implemented")
+    }
 
 
 }
