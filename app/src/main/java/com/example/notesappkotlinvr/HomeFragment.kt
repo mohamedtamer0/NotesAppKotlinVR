@@ -43,7 +43,7 @@ class HomeFragment : BaseFragment() {
         super.onViewCreated(view, savedInstanceState)
 
         recycler_view.setHasFixedSize(true)
-
+        recycler_view.setNestedScrollingEnabled(false);
         recycler_view.layoutManager = StaggeredGridLayoutManager(2,StaggeredGridLayoutManager.VERTICAL)
 
         launch {
