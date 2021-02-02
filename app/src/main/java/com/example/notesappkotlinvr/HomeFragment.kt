@@ -46,19 +46,28 @@ class HomeFragment : BaseFragment() {
         recycler_view.setNestedScrollingEnabled(false);
         recycler_view.layoutManager = StaggeredGridLayoutManager(2,StaggeredGridLayoutManager.VERTICAL)
 
-        launch {
-            context?.let {
-                var notes = NotesDatabase.getDatabase(it).noteDao().getAllNotes()
-                notesAdapter!!.setData(notes)
-                arrNotes = notes as ArrayList<Notes>
-                recycler_view.adapter = notesAdapter
-            }
-        }
+
+
+        notesAdapter!!.setOnClickListener(onClicked)
 
         fabBtnCreateNote.setOnClickListener {
             replaceFragment(CreateNoteFragment.newInstance(),true)
         }
     }
+
+
+    private val onClicked = object : NotesAdapter.OnItemClickListener{
+        override fun onClicked(notesId: Int) {
+            var fragment : Fragment
+            var bundle = Bundle()
+            bundle.putInt("noteId",notesId)
+            fragment = CreateNoteFragment.newInstance()
+            fragment.arguments = bundle
+
+            replaceFragment(fragment,false)
+        }
+    }
+
 
 
     fun replaceFragment(fragment: Fragment, istransition:Boolean) {

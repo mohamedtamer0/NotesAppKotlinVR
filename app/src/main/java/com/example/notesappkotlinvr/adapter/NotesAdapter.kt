@@ -62,6 +62,9 @@ class NotesAdapter() :
             holder.itemView.tvWebLink.visibility = View.GONE
         }
 
+        holder.itemView.cardView.setOnClickListener {
+            listener!!.onClicked(arrList[position].id!!)
+        }
 
 
     }
