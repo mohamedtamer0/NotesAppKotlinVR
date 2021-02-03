@@ -22,6 +22,10 @@ import com.example.notesappkotlinvr.database.NotesDatabase
 import com.example.notesappkotlinvr.enities.Notes
 import com.example.notesappkotlinvr.util.NoteBottomSheetFragment
 import kotlinx.android.synthetic.main.fragment_create_note.*
+import kotlinx.android.synthetic.main.fragment_create_note.imgNote
+import kotlinx.android.synthetic.main.fragment_create_note.tvDateTime
+import kotlinx.android.synthetic.main.fragment_create_note.tvWebLink
+import kotlinx.android.synthetic.main.item_rv_notes.*
 import kotlinx.coroutines.launch
 import pub.devrel.easypermissions.AppSettingsDialog
 import pub.devrel.easypermissions.EasyPermissions
@@ -123,6 +127,11 @@ class CreateNoteFragment : BaseFragment(), EasyPermissions.PermissionCallbacks, 
             noteBottomSheetFragment.show(requireActivity().supportFragmentManager,"Note Bottom Sheet Fragment")
         }
 
+        imgDelete.setOnClickListener {
+            selectedImagePath = ""
+            layoutImage.visibility = View.GONE
+        }
+
         btnOk.setOnClickListener {
             if (etWebLink.text.toString().trim().isNotEmpty()) {
                 checkWebUrl()
@@ -132,7 +141,12 @@ class CreateNoteFragment : BaseFragment(), EasyPermissions.PermissionCallbacks, 
         }
 
         btnCancel.setOnClickListener {
-            layoutWebUrl.visibility = View.GONE
+            if (noteId != -1) {
+                tvWebLink.visibility = View.VISIBLE
+                layoutWebUrl.visibility = View.GONE
+            }else {
+                layoutWebUrl.visibility = View.GONE
+            }
         }
 
         tvWebLink.setOnClickListener {
