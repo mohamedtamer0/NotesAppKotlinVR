@@ -172,6 +172,7 @@ class CreateNoteFragment : BaseFragment(), EasyPermissions.PermissionCallbacks, 
                     etNoteTitle.setText("")
                     etNoteSubTitle.setText("")
                     etNoteDesc.setText("")
+                    layoutImage.visibility = View.GONE
                     imgNote.visibility = View.GONE
                     tvWebLink.visibility = View.GONE
                     requireActivity().supportFragmentManager.popBackStack()
