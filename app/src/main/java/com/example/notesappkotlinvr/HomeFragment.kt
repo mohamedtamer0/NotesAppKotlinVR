@@ -79,6 +79,8 @@ class HomeFragment : BaseFragment() {
                 for (arr in arrNotes){
                     if (arr.title!!.toLowerCase(Locale.getDefault()).contains(p0.toString())){
                         tempArr.add(arr)
+                    }else if (arr.noteText!!.toLowerCase(Locale.getDefault()).contains(p0.toString())) {
+                        tempArr.add(arr)
                     }
                 }
 
